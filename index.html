@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHub - Find Your Dream Job</title>
+   <link rel="stylesheet" href="style.css" class="css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">JobOrbit</a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#jobs">Jobs</a></li>
+                        <li><a href="#companies">Companies</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>"Find Your Next Big Opportunity"</h1>
+            <p>Discover thousands of job opportunities from top companies worldwide</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="search-section">
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label for="jobTitle">Job Title</label>
+                    <input type="text" id="jobTitle" placeholder="e.g. Software Engineer">
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" placeholder="e.g. San Francisco">
+                </div>
+                <div class="form-group">
+                    <label for="company">Company</label>
+                    <input type="text" id="company" placeholder="e.g. Google">
+                </div>
+                <button type="submit" class="search-btn">Search Jobs</button>
+            </form>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="content-wrapper">
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all">All Jobs</button>
+                    <button class="filter-btn" data-filter="full-time">Full Time</button>
+                    <button class="filter-btn" data-filter="part-time">Part Time</button>
+                    <button class="filter-btn" data-filter="remote">Remote</button>
+                    <button class="filter-btn" data-filter="contract">Contract</button>
+                </div>
+
+                <div class="results-header">
+                    <div class="results-count" id="resultsCount">Loading jobs...</div>
+                    <select class="sort-select" id="sortSelect">
+                        <option value="recent">Most Recent</option>
+                        <option value="salary">Highest Salary</option>
+                        <option value="company">Company A-Z</option>
+                    </select>
+                </div>
+
+                <div class="job-grid" id="jobGrid">
+                    <div class="loading">Loading amazing job opportunities...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!------------------- Job Details---------------- -->
+    <div class="modal" id="jobModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalJobTitle">Job Title</h2>
+                <p id="modalCompany">Company Name</p>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Job details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --------------- job data--------------------------------------
+        const jobsData = [
+            {
+                id: 1,
+                title: "Senior Frontend Developer",
+                company: "TechCorp",
+                location: "San Francisco, CA",
+                type: "full-time",
+                remote: true,
+                salary: "$120,000 - $180,000",
+                tags: ["React", "JavaScript", "TypeScript", "CSS"],
+                description: "We're looking for a passionate Senior Frontend Developer to join our growing team and help build cutting-edge web applications.",
+                posted: "2024-01-15",
+                requirements: ["5+ years experience", "React expertise", "Strong CSS skills"],
+                benefits: ["Health insurance", "401k", "Remote work", "Flexible hours"]
+            },
+            {
+                id: 2,
+                title: "Product Manager",
+                company: "InnovateLab",
+                location: "New York, NY",
+                type: "full-time",
+                remote: false,
+                salary: "$100,000 - $140,000",
+                tags: ["Strategy", "Analytics", "Leadership", "Agile"],
+                description: "Lead product strategy and development for our revolutionary productivity tools used by millions worldwide.",
+                posted: "2024-01-14",
+                requirements: ["3+ years PM experience", "Data-driven mindset", "Leadership skills"],
+                benefits: ["Health insurance", "Stock options", "Learning budget", "Team events"]
+            },
+            {
+                id: 3,
+                title: "UX/UI Designer",
+                company: "DesignStudio",
+                location: "Los Angeles, CA",
+                type: "contract",
+                remote: true,
+                salary: "$80 - $120 /hour",
+                tags: ["Figma", "Sketch", "Prototyping", "User Research"],
+                description: "Create beautiful and intuitive user experiences for our client's mobile and web applications.",
+                posted: "2024-01-13",
+                requirements: ["Portfolio required", "Figma proficiency", "User research experience"],
+                benefits: ["Flexible schedule", "Remote work", "Creative freedom"]
+            },
+            {
+                id: 4,
+                title: "DevOps Engineer",
+                company: "CloudTech",
+                location: "Austin, TX",
+                type: "full-time",
+                remote: true,
+                salary: "$110,000 - $160,000",
+                tags: ["AWS", "Docker", "Kubernetes", "CI/CD"],
+                description: "Build and maintain scalable infrastructure for our cloud-native applications serving millions of users.",
+                posted: "2024-01-12",
+                requirements: ["AWS certification", "Container experience", "Automation mindset"],
+                benefits: ["Health insurance", "401k", "Remote work", "Tech budget"]
+            },
+            {
+                id: 5,
+                title: "Data Scientist",
+                company: "DataCorp",
+                location: "Seattle, WA",
+                type: "full-time",
+                remote: false,
+                salary: "$130,000 - $190,000",
+                tags: ["Python", "Machine Learning", "SQL", "Statistics"],
+                description: "Apply advanced analytics and machine learning to solve complex business problems and drive data-driven decisions.",
+                posted: "2024-01-11",
+                requirements: ["PhD preferred", "Python/R expertise", "ML experience"],
+                benefits: ["Health insurance", "Stock options", "Research time", "Conference budget"]
+            },
+            {
+                id: 6,
+                title: "Marketing Specialist",
+                company: "GrowthCo",
+                location: "Chicago, IL",
+                type: "part-time",
+                remote: true,
+                salary: "$40,000 - $60,000",
+                tags: ["Digital Marketing", "SEO", "Content", "Analytics"],
+                description: "Drive growth through innovative marketing campaigns and content strategy for our B2B SaaS platform.",
+                posted: "2024-01-10",
+                requirements: ["2+ years marketing", "SEO knowledge", "Content creation"],
+                benefits: ["Flexible hours", "Remote work", "Growth opportunities"]
+            }
+        ];
+
+        let currentJobs = [...jobsData];
+        let bookmarkedJobs = new Set();
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            displayJobs(currentJobs);
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('searchForm').addEventListener('submit', handleSearch);
+            
+        s
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', handleFilter);
+            });
+            
+             document.getElementById('sortSelect').addEventListener('change', handleSort);
+            
+            
+            document.getElementById('jobModal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+        }
+
+        function displayJobs(jobs) {
+            const jobGrid = document.getElementById('jobGrid');
+            const resultsCount = document.getElementById('resultsCount');
+            
+            resultsCount.textContent = `${jobs.length} job${jobs.length !== 1 ? 's' : ''} found`;
+            
+            if (jobs.length === 0) {
+                jobGrid.innerHTML = '<div class="no-results">No jobs found matching your criteria. Try adjusting your search.</div>';
+                return;
+            }
+            
+            jobGrid.innerHTML = jobs.map(job => createJobCard(job)).join('');
+        }
+
+        function createJobCard(job) {
+            const isBookmarked = bookmarkedJobs.has(job.id);
+            const companyInitial = job.company.charAt(0);
+            
+            return `
+                <div class="job-card" onclick="openJobModal(${job.id})">
+                    <div class="job-header">
+                        <div style="display: flex; gap: 1rem;">
+                            <div class="company-logo">${companyInitial}</div>
+                            <div class="job-info">
+                                <h3>${job.title}</h3>
+                                <div class="company-name">${job.company}</div>
+                            </div>
+                        </div>
+                        <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
+                                onclick="toggleBookmark(event, ${job.id})">
+                            ${isBookmarked ? '♥' : '♡'}
+                        </button>
+                    </div>
+                    
+                    <div class="job-meta">
+                        <div class="meta-item">📍 ${job.location}</div>
+                        <div class="meta-item">💼 ${job.type.replace('-', ' ')}</div>
+                        ${job.remote ? '<div class="meta-item">🏠 Remote</div>' : ''}
+                        <div class="meta-item">📅 ${formatDate(job.posted)}</div>
+                    </div>
+                    
+                    <div class="job-tags">
+                        ${job.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    
+                    <div class="job-description">
+                        ${job.description}
+                    </div>
+                    
+                    <div class="job-footer">
+                        <div class="salary">${job.salary}</div>
+                        <button class="apply-btn" onclick="applyToJob(event, ${job.id})">Apply Now</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleSearch(e) {
+            e.preventDefault();
+            
+            const jobTitle = document.getElementById('jobTitle').value.toLowerCase();
+            const location = document.getElementById('location').value.toLowerCase();
+            const company = document.getElementById('company').value.toLowerCase();
+            
+            currentJobs = jobsData.filter(job => {
+                const matchesTitle = jobTitle === '' || job.title.toLowerCase().includes(jobTitle);
+                const matchesLocation = location === '' || job.location.toLowerCase().includes(location);
+                const matchesCompany = company === '' || job.company.toLowerCase().includes(company);
+                
+                return matchesTitle && matchesLocation && matchesCompany;
+            });
+            
+            displayJobs(currentJobs);
+        }
+
+        function handleFilter(e) {
+            // Update active filter
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            const filter = e.target.dataset.filter;
+            
+            if (filter === 'all') {
+                currentJobs = [...jobsData];
+            } else if (filter === 'remote') {
+                currentJobs = jobsData.filter(job => job.remote);
+            } else {
+                currentJobs = jobsData.filter(job => job.type === filter);
+            }
+            
+            displayJobs(currentJobs);
+        }
+
+        function handleSort(e) {
+            const sortBy = e.target.value;
+            
+            switch (sortBy) {
+                case 'recent':
+                    currentJobs.sort((a, b) => new Date(b.posted) - new Date(a.posted));
+                    break;
+                case 'salary':
+                    currentJobs.sort((a, b) => {
+                        const getSalaryNumber = (salary) => {
+                            const numbers = salary.match(/\d+/g);
+                            return numbers ? parseInt(numbers[numbers.length - 1]) : 0;
+                        };
+                        return getSalaryNumber(b.salary) - getSalaryNumber(a.salary);
+                    });
+                    break;
+                case 'company':
+                    currentJobs.sort((a, b) => a.company.localeCompare(b.company));
+                    break;
+            }
+            
+            displayJobs(currentJobs);
+        }
+
+        function toggleBookmark(e, jobId) {
+            e.stopPropagation();
+            
+            if (bookmarkedJobs.has(jobId)) {
+                bookmarkedJobs.delete(jobId);
+            } else {
+                bookmarkedJobs.add(jobId);
+            }
+            
+            displayJobs(currentJobs);
+        }
+
+        function applyToJob(e, jobId) {
+            e.stopPropagation();
+            
+            const job = jobsData.find(j => j.id === jobId);
+            alert(`Thank you for your interest in the ${job.title} position at ${job.company}! In a real application, this would redirect to the application form.`);
+        }
+
+        function openJobModal(jobId) {
+            const job = jobsData.find(j => j.id === jobId);
+            
+            document.getElementById('modalJobTitle').textContent = job.title;
+            document.getElementById('modalCompany').textContent = job.company;
+            
+            document.getElementById('modalBody').innerHTML = `
+                <div style="margin-bottom: 2rem;">
+                    <h3>Job Description</h3>
+                    <p>${job.description}</p>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <h3>Requirements</h3>
+                    <ul>
+                        ${job.requirements.map(req => `<li>${req}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <h3>Benefits</h3>
+                    <ul>
+                        ${job.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <h3>Skills</h3>
+                    <div class="job-tags">
+                        ${job.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="apply-btn" onclick="applyToJob(event, ${job.id})" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                        Apply for this Position
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('jobModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('jobModal').style.display = 'none';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) return '1 day ago';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+            return `${Math.floor(diffDays / 30)} months ago`;
+        }
+    </script>
+</body>
+</html>
